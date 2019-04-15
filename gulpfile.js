@@ -7,16 +7,27 @@ let server = require("gulp-webserver");
 let fs = require("fs");
 let path = require("path");
 let url = require("url");
-let data = require("./data/data.json")
-    //编译sass
+let data = require("./data/data.json");
+let minimage = require("gulp-imagemin");
+//编译sass
 gulp.task("devcss", () => {
-    return gulp.src("./src/sass/index.scss")
-        .pipe(sass())
-        .pipe(gulp.dest("./dist/css"))
-})
+        return gulp.src("./src/sass/index.scss")
+            .pipe(sass())
+            .pipe(gulp.dest("./dist/css"))
+    })
+    //编译js
+gulp.task("devjs", () => {
+    return gulp.src("./src/js/**/*.js")
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(gulp.dest("./dist/js"))
+});
+//监听
 gulp.task("watch", () => {
-    return gulp.watch("./src/sass/**/*.scss", gulp.series("devcss"))
-})
+    return gulp.watch(["./src/sass/**/*.scss", "./src/js/**/*.js"], gulp.series("devcss", "devjs"))
+});
+//静态服务
 gulp.task("server", () => {
     return gulp.src("./src/")
         .pipe(server({
@@ -46,4 +57,22 @@ gulp.task("serverData", () => {
 
         }))
 })
-gulp.task("default", gulp.series("devcss", "server", "serverData", "watch"))
+gulp.task("default", gulp.series("devcss", "server", "serverData", "watch"));
+//压缩css
+gulp.task("mincss", () => {
+        return gulp.src("./dist/index.css")
+            .pipe(mincss())
+            .pipe(gulp.dest("./dist/index.css"))
+    })
+    //压缩js
+gulp.task("minjs", () => {
+    return gulp.src("./dist/js")
+        .pipe(uglify())
+        .pipe(gulp.dest("./dist/js"))
+});
+//压缩image
+gulp.task("minimg", () => {
+    return gulp.src("./src/img/**/*.gif")
+        .pipe(minimage())
+        .pipe(gulp.dest("./dist/img"))
+});

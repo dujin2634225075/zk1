@@ -1,4 +1,5 @@
 let content = document.querySelector(".content");
+//渲染页面
 axios.get("/api/getlist").then((res) => {
     content.innerHTML = res.data.map(item => {
         return `<dl>
